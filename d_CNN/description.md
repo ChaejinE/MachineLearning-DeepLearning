@@ -85,6 +85,47 @@
 - feature 추출 -> sub-sampling을 통해 feature map 크기를 줄여주면서 이를 통해 topology invariance도 얻을 수가 있게 된다.
 - local feature에 대해 다시 convolution과 sub-sampling을 수행하면서 이 과정을 통해 좀 더 global feature를 얻을 수 있게 된다.
 - 여러 단의 convolution + sub-sampling 과정을 거치면, Feature map 크기가 작아지면서 전체를 대표할 수 있는 강인한 특징들만 남게 된다.
-
-
 - Fully-connected network의 입력으로 연결되면서 기존의 신경망들의 특징처럼 학습을 통해 최적의 인식 결과를 낼 수 있게 된다.
+
+# Convolution Layer
+- CNN 알고리즘을 통해 처리하고자 하는 과제에 따라 최종 Convolution kernel의 계수가 달라질 수 있다.
+- 동일 과제일지라도 학습에 사용하는 학습 데이터에 따라서 달라질 수 있고, 설정한 hyper-parameter의 값에 따라서도 달라질 수 있다.
+- 필터 계수의 값은 기존 신경망과 마찬가지로 Gradient에 기반한 back-propagation에 의해 결정된다.
+## 1. Filter 개수
+- Feature map의 크기: Convolutional layer의 출력 영상 크기)는 Layer의 depth가 커질수록 작아지므로 일반적으로 영상의 크기가 큰 입력단 근처에 있는 layer는 Filter 개수가 적고, 입력단에서 멀어질수록 Filter 개수는 증가하는 경향이 있다.
+- 어떤 원칙으로 Filter 개수를 정하는가 ?
+  - convolution layer의 연산 시간을 본다.
+
+![image](https://user-images.githubusercontent.com/69780812/138055152-931be46d-e52d-4f6c-9873-eb99388d3b3d.png)
+
+
+- 필터의 개수를 정할때 흔히 사용하는 방법은 **각 단에서의 연산 시간/량을 비교적 일정하게 유지하여 시스템의 균형**을 맞춘다.
+- 이를 위해 일반적으로 각 layer에서 feature map의 개수와 pixel 수의 곱을 대략적으로 일정하게 유지시킨다.
+  - convolution layer에서의 연산 시간이 픽셀 수와 feature map의 개수에 따라 결정되기 떄문이다.
+- 2x2 sub-sampling시 convoltion layer를 지나면 pixel 수가 1/4로 줄어들기 때문에 feature map의 개수는 대략 4배 정도로 증가시킨다.
+- Feature map의 개수는 가중치와 바이어스 같은 free parameter의 개수를 결정하고, 학습 샘플의 개수 및 수행하고자 하는 과제의 복잡도에따라 결정한다.
+
+## 2. Filter의 형태
+- 작은 크기의 입력영상 (32x32, 28x28)에서는 5x5 필터를 주로 사용하고, 큰 크기의 자연 영상을 처리할 때나 혹은 1단계 필터에서는 11x11 or 15x15 같은 큰 크기의 kernel을 갖는 필터를 사용하기도 한다.
+- **여러 개의 작은 크기의 필터를 중첩해서 사용하는 것이 좋다.**
+  - 작은 필터를 여러개 중첩하면 중간 단계에 있는 **non-linearity를 활용**하여 원하는 특징을 좀 더 돋보이도록 할 수 있다.
+  - 연산량도 더 적게 만든다.
+
+## 3. Stride 값
+![image](https://user-images.githubusercontent.com/69780812/138056117-a529e695-190e-40c7-b62c-5b04c00d7cfa.png)
+
+- 건널 뛸 픽셀의 개수를 결정한다.
+- 2차원 영상 데이터에 대해서는 가로 및 세로 방향으로 Stride에서 정한 수만큼 씩 건너 뛰면서 Convolution 연산을 진행한다.
+- **Stride는 입력 영상의 크기가 큰 경우, 연산량을 줄이기 위한 목적으로 입력단과 가까운 쪽에만 적용한다.**
+- Stride 1로하고, Pooling 적용하는 방식과 Stride를 크게하는 방식의 차이는 ?
+  - Stride를 크게하는 것은 Convolution 연산 수행 후 값을 선택적으로 고르는 기회가 사라지게 된다.
+  - **그래서 통상적으로 봤ㅇ르 때, Stride 1, Pooling을 통해 적절한 Sub-sampling 과정을 거치는 것이 결과가 좋다.**
+  - 하지만 큰 영상에 대해 CNN을 적용할 때 연산량을 줄이기 위해 입력 영상 처리 1단계에서 Stride 값을 사용하기도 한다.
+
+## 4. Zero-Padding
+- 보통 Convolution 연산을 하게 되면, 경계 처리문제로 인해 출력 영상인 Feature map의 크기가 입력 영상보다 작아지게 된다.
+- Zero padding은 작아지는 것을 피하기 위해 입력의 경계면에 0을 추가하는 것을 말한다.
+  - 영상 크기를 동일하게 유지할 수 있다.
+- 단순하게 영상의 크기를 동일하게 유지하는 장점 이외에도 **경계면의 정보까지 살릴 수가 있어 Zero padding을 지원하지 않는 경우에 비해 Zero-Padding을 지원하는 것이 좀 더 결과가 좋다.**
+---
+- Feature-map 개수, 필터의 크기, Stride 및 Zero padding은 CNN의 구조를 결정하는 중요한 기본 hyperparameter다.
