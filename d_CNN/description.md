@@ -1,7 +1,7 @@
 # CNN (Convolutional Neural Network)
 - 영상에 기반한 인식 알고리즘에서 좋은 결과를 얻으려면, 사전에 많은 처리 과정을 필요로 하기 때문에 기존 Multi-layered neural network을 바로 적용하는 것은 어려움이 있다.
 # 기존 Multi-layered Nueral Network의 문제점
-![image](https://user-images.githubusercontent.com/69780812/138040591-e10c2e46-5fb0-4bf3-9126-be420b93a073.png)
+![image](https://user-images.githubusercontent.com/69780812/138057370-c27b455d-76d6-4ad7-a2ca-1f75be78623b.png)
 
 - 필기체 인식을 위해 위 처럼 256개의 입력단과 100개의 hidden layer 및 26개의 출력단으로 구성된다면 이 망에 필요한 가중치와 바이어스는 28,326개가 필요하게 된다.
 - 폰트 Size가 커지거나 Hidden layer가 2단 이상이거나 대소문자 구별이나 숫자까지 구별해야한다면 파라미터의 개수가 엄청나게 많아진다.
