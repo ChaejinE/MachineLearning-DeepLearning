@@ -254,3 +254,134 @@
 - 이론적으로 DropConnect의 자유도나 표현력이 높아 Dropout보다 좋아야할 것 같은데, 약간 좋은 수준이라 논란의 여지가 있다고 한다.
 - 하지만, DropOut, DropConnect 둘다 Deep Network에서 효과적이라는 것이 여러 곳에서 입증 되었고, Overfitting을 해결하기 위한 적절한 regularization 방법으로 사용할 수 있다.
 ---
+
+# 3. Stochastic Pooling
+## Pooling
+- CNN에서 보통 Pooling이라 불리는 sub-sampling을 이용해 feature map size를 줄이고, 위치나 이동에 좀 더 강인한 성질을 갖는 특징을 추출할 수 있게 된다.
+- 그 동안 max-pooling or average-pooling이 많이 쓰였다.
+  - average pooling : deep CNN에서는 성능이 그리 좋지 않다고 한다. 활성화 함수 ReLU 특성에 의해 0이 많이 나오게 되면 평균 연산에 의해 강한 자극이 줄어드는 효과, down-scale weighting이 발생한다고 한다. tanh를 사용할 경우 더 나빠질 가능성이 있는데, 그 이유는 강한 양의 자극과 음의 자극에 대한 평균을 취하게 되면 서로 상쇄되는 상황이 발생할 수 있기 때문이다.
+  - max pooling : 위와 같은 문제는 없지만 학습 데이터에 overfitting 되기 쉬운 문제가 있다고 한다.
+- Stochastic Pooling은 max-pooling의 장점을 유지하면서 overfitting 문제를 해결하기 위한 방법이다.
+## Stochastic Pooling
+- 단순히 최대 Activation을 선택하거나 모든 Activation의 평균을 구하는 것이 아닌, Dropout과 마찬가지로 확률 p에 따라 적절한 activation을 선택한다.
+
+![image](https://user-images.githubusercontent.com/69780812/138285724-c9d9cef6-9a59-4bfd-9a46-496641dad261.png)
+
+- Pooling Window에 있는 모든 Activation을 합한 후 그 합으로 각각의 Activation을 나눠줘, normalize 확률을 구한다.
+
+![image](https://user-images.githubusercontent.com/69780812/138285782-91dadea3-45e5-43f4-8787-a251187add9b.png)
+
+- 각각의 확률을 구하고 그 영역을 대표하는 Activation은 호가률에 따라 선정하게 되며 식은 위와 같다.
+- 이렇게 선택하게 되면 Max Pooling 효과를 그대로 유지하면서 Stochastic component를 이용해 Overfitting을 피할 수 있다고 한다.
+- Max-Pooling은 강한 자극만 선택할 뿐이지만, 경우에 따라서는 최대값이 아니더라도 더 중요한 정보를 갖고 있을 수 있기때문에 이를 사용하면 가능해진다고한다.
+
+![image](https://user-images.githubusercontent.com/69780812/138286096-378131af-a5b3-4dc7-99bc-9cfa4da63211.png)
+
+- max-pooling 방식 : 2.4를 선택
+- average-pooling 방식 : 4/9 = 0.444 로 의미 없는 작은 값
+- stochastic-pooling : 2.4 일수도 1.6일 수도 있다.
+- Backpropagation 시 max-pooling 방식과 마찬가지로 선정된 Actiavtion만 남기고 나머지는 전부 0으로 한 후 처리한다.
+
+![image](https://user-images.githubusercontent.com/69780812/138286488-bcae2369-ab61-4e84-a9e3-c28b23e13938.png)
+
+- 3x3 Pooling 윈도우의 Activation이 위와 같다고 가정해본다.
+
+![image](https://user-images.githubusercontent.com/69780812/138286539-a7d2efbc-cd5e-49a3-aa85-ca31ae976c56.png)
+
+- 확률을 구하면 왼쪽 그림과 같으며 크기에 따라 Sorting을 하면 오른쪽과 같은 결과가 나온다.
+- Stochastic Pooling을 위해 5번 선택 -> Activation은 1.2가 선택된다.
+- 위 예에서 Activation 값이 1.5가 2개가 잇는데, 이 것은 1번이나 2번을 선택하면 나오게된다. 즉, **결과적으로 같은 값을 갖는 것들이 많으면, Stochastic Pooling을 통해 선택될 확률이 증가**하게 된다.
+
+## Probabilistic Weighting
+- 학습을 마치고 실제 적용 시에도 Stochastic Pooling을 사용하면 성능이 떨어지는 경향이 있어 실제 Test 시에는 다른 방법을 사용한다.
+
+![image](https://user-images.githubusercontent.com/69780812/138287129-a555275f-db3c-4dd7-b318-0a01b3750f1b.png)
+
+- 각각의 Activation에 확률을 weighting factor로 곱해주고 전체를 더하는 방법을 취한다. 이것을 Probabilistic weighting이라 부른다.
+- 각각의 Activation이 다른 Weighting factor를 곱해지기 때문에 Average Pooling과 다르다.
+- 이러한 Probabilistic weighting으로 dropout이 test 시 modeling averaging을 통해 성능을 끌어 올리는 것과 비슷한 효과를 얻을 수 있다고 주장한다.
+- **학습을 시킬 때는 확률에 기반한 sampling 방식으로 다양한 model을 학습하고, test시에는 probabilistic weighting을 통해 model averaging을 통해 성능을 올린다는 점이 dropout과 개념이 거의 유사하다.**
+- Pooling window size를 n, pooling region 개수를 d라하면 가능한 모델의 수는 n^d가 되어 dropout 보다 훨씬 많은 모델 수가 가능하다.
+- 실제로 Test 시 stochastic pooling과 probabilistic weighting을 비교한 싫머이 있었는데 probabilistic weighting을 사용하는 것이 더 좋은 결과를 냈다.
+
+![image](https://user-images.githubusercontent.com/69780812/138288018-a6b7a7a6-23fb-4cd6-9bd1-9297a91e741a.png)
+
+- Stochastic Pooling의 성능을 평가하기 위해 CIFAR-10 데이터에대해 여러 Pooling으로 실험해 봤다.
+- Train 시 max-pooling이 결과가 좋지만, Test 결과를 보면 Max, average Pooling은 Overfitting이 일어난 것으로 보인다.
+- 반면 stochastic Pooling은 training error는 max-pooling보다 높지만 test error는 학습을 계속 시키면서 줄어든다.
+- Overfitting 문제에서 max나 average Pooling 보다 자유롭다는 것을 알 수 있다.
+- CIFAR-100, SVHN에서도 어느 경우에서나 결과가 가장 좋았으므로 확실히 stochastic pooling이 overfitting을 피할 수 있는 Pooling 방식이라는 것이 입증되었다.
+
+![image](https://user-images.githubusercontent.com/69780812/138288793-6a41851e-9237-4daa-abd3-9f3f08ae99fe.png)
+
+- 위는 MNIST 데이터에 대해 training과 test시 각각 Pooling 방법을 실험한 결과다.
+- 학습시 Stochastic Pooling을 사용하고, Test시 Probabilistic Weighting을 사용한 것이 결과가 제일 좋았다.
+- Stochastic-100은 실제로 model averaging 효과를 확인하기 위해 stochastic pooling을 이용한 100개 모델을 테스트 시에 만들어 실험한 결과이다. 하지만 모델 수가 커질 수록 연산 시간이 늘어난다.
+  - **이는 Test시 Probabilistic weighting을 사용하면 model averaging 효과도 얻을 수 있고, 연산 시간도 매우 짧게 할 수 있다는 것을 의미**한다.
+- Dropout 방식이 model averaging으로 Fully connected layer에서 overfitting을 피하는 효과를 얻은 것처럼 pooling 시 model averaging 효과를 얻을 수 있는 stochastic pooling 방식을 공부할 수 있었다.
+
+# 4. Maxout
+- Dropout의 효과를 극대화시키기 위해 독특한 형태의 Activation Function을 고안한 것이다.
+
+![image](https://user-images.githubusercontent.com/69780812/138294452-45627aa9-e3df-4de3-83c9-9ea3c5225954.png)
+
+- Maxout hidden layer는 2개의 layer로 구성되어 있다.
+  - 녹색 : affine function 수행
+  - 파란색 : 최대값을 선택
+- 녹색은 전통적인 hidden layer 처럼 activation function이 있는 것이 아니라 단순히 sum(x\*weight)형식이기 때문에 affine function이라고 부른다.
+  - 녹색 영역에는 non-linear function이 없다.
+- k개의 column이 있는데 이 k개의 column에서 동일 위치에 있는 것들 중 최고 값을 파란 영역에서 취하고 최종적으로 m개의 결과가 나오게 된다.
+
+![image](https://user-images.githubusercontent.com/69780812/138294910-bb03fd5f-867d-4e7b-a009-a171bfc2cd52.png)
+
+- 위 설명을 나타낸 Maxout 수식이라고한다.
+
+## 의미
+![image](https://user-images.githubusercontent.com/69780812/138295030-a5fc4b72-2c0e-4b3d-ae35-759f6bcf8077.png)
+
+- 입력이 2개, 출력 1개, k가 3인 Maxout unit을 그린 그림이다.
+
+![image](https://user-images.githubusercontent.com/69780812/138295108-5369394f-c669-4b6f-905d-7b0b19b7d61d.png)
+
+- 3개 유닛을 이용하여 f(x) = x^2를 근사 시킨다로 하면 위와 같은 그림 형태가 나온다.
+- f(x)를 3개의 직선으로 근사 시킨다면 위와 같은 그림이 되며 원래 convex한 경우는 각각의 직선 중 가장 큰 값을 선택하면 비교적 비슷한 모양을 얻을 수 있다.
+  - 가장 큰 것을 선택한다는 것은 가장큰 activation value를 취한다는 뜻이다.
+- k 값이 클수록 구간이 좀 더 세분화 되면서 원래 곡선과 비슷한 형태를 갖게 될 것이다. 그래서 위 그림이 오차가 많은 것으로 보이지만 affine function이 갖는 다양한 표현력을 고려하면 k 값이 크지 않더라도 convex function을 거의 표현할 수 있게 된다.
+  - 이런 의미에서 Maxout은 universal approximator라고 생각할 수 있다.
+- Maxout은 Dropout을 염두해두고 만든 활성화 함수 이므로 연동 시킴으로써 여러 개의 경로 중 하나를 고를 수 있는 효과를 얻을 수 있다.
+
+![image](https://user-images.githubusercontent.com/69780812/138295692-42d42e67-860f-4389-821a-02486226449e.png)
+
+- 결과적으로 Maxout은 affine 함수 부분과 최대값을 선택하는 부분을 이용해 임의의 convex function을 piecewise linear approximation 하는 것이라고 할 수 있다고 한다. 위는 다양한 함수를 표현할 수 있는 것을 보여주는 예다.
+
+## Maxout의 성능
+![image](https://user-images.githubusercontent.com/69780812/138296077-c4df21ae-c129-4d8d-9aa2-baaab93a39d1.png)
+
+- MINIST 데이터에대한 실험결과에서는 stochastic pooling을 써도 성능 개선이 있지만, Maxout을 적용하면 더 좋은 결과를 얻을 수 있음이 밝혀졌다.
+
+![image](https://user-images.githubusercontent.com/69780812/138296214-bf36c9bb-2107-4ed9-a450-9fe5e952351a.png)
+
+- CIFAR-10 데이터셋에서도 data augmentation 까지 같이 사용한 경우 가장 좋은 결과가 나왔다.
+- CIFAR-100, SVHN에서도 마찬가지로 좋은 결과였다.
+
+## Model Averaging
+- Maxout에 Dropout을 적용하면서 생기는 model averaging 효과로 결과가 좋아진다.
+- Dropout은 마치 엄청나게 많은 sub-model을 학습시키는 것과 유사한 효과를 얻고, 실제 적용 시 weight에 dropout 확률 p를 곱해주는 간단한 방식으로 model averaging(esemble효과)를 얻을 수 있었다.
+- 수학적으로도 Softmax 함수를 사용하는 경우 p를 곱해주는 것으로 그것도 SOftmax layer가 1 layer인 경우에 한해서 수학적으로 p를 곱해주는 것이 정확하게 averaging 된다는 것이 증명됐다고한다.
+  - Sigmoid, tanh 및 ReLU와 같은 함수를 활성함수도 Dropout을 적용하면 효과가있다는 것도 확인되었는데 이는 경험적으로 효과가 있다는 것이지 수학적으로 그런것은 아니다.
+- Dropout과 어울리는 활성화 함수 Maxout을 만들어내는데, sigmoid tanh와 같은 함수 대신에 PWL(Piecewise Linear Approximation) 기능을 갖는 활성 함수를 고안하여 Dropout 효과를 극대화 시킨 것으로 보인다고 한다.
+
+![image](https://user-images.githubusercontent.com/69780812/138297850-374c153b-f8fc-4c2e-b62e-56869be9309b.png)
+
+- Model averaging 효과를 확인하기 위해 동일 신경망에 활성함수만 바꿔 실험한 결과인데, Maxout을 사용한 경우가 tanh을 사용한 경우보다 더 좋은 성능을 내었다.
+- 결론적으로 tanh 사용하는 것보다 Maxout을 사용하는 것이 model averaging 효과를 극대화 시킬 수 있음을 확인했다.
+
+![image](https://user-images.githubusercontent.com/69780812/138298126-00133414-d4e8-409f-988b-6cd9a9e97798.png)
+
+- 또한 ReLU 함수와의 비교를 위해 layer 수를 증가시키면서 성능을 테스트해본 결과다.
+- Maxout을 사용했을 때 완만하게 성능이 안좋아 지는 것이 확인되었다.
+- 이는 Overfitting에 있어서 ReLU를 사용하는 것보다 Maxout이 훨씬 효과적이라는 의미가 된다.
+- 또한 Qi Wang 논문에서는 경로(pathway)관점에서 해석했는데, 여러 개의 경로 중 하나를 선택할 수 있고, gradient가 back-propagation 되는 방향도 그 경로로만 전파가되어 학습 샘플로부터 얻은 정보를 sparse한 방식으로 encoding이 가능하다는 뜻도 있다.
+  - ReLU를 사용할 때도 sparse한 성질이 있지만, 경로 선택에 있어서의 자유가 제한적이다.
+  - 이 때문에 ReLU를 사용하는 것이 좀 더 Overfitting될 가능성이 높다고 판단한 것 같다.
+  - 이러한 특성 때문에 Sparse한 경로를 통해 Encoding하여 Training하지만 Test 시에는 모든 파라미터를 사용하기 때문에 model averaging 효과를 얻을 수 있다.
