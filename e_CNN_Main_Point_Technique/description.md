@@ -349,7 +349,7 @@
 - k 값이 클수록 구간이 좀 더 세분화 되면서 원래 곡선과 비슷한 형태를 갖게 될 것이다. 그래서 위 그림이 오차가 많은 것으로 보이지만 affine function이 갖는 다양한 표현력을 고려하면 k 값이 크지 않더라도 convex function을 거의 표현할 수 있게 된다.
   - 이런 의미에서 Maxout은 universal approximator라고 생각할 수 있다.
 - Maxout은 Dropout을 염두해두고 만든 활성화 함수 이므로 연동 시킴으로써 여러 개의 경로 중 하나를 고를 수 있는 효과를 얻을 수 있다.
-- [(http://www.ke.tu-darmstadt.de/lehre/archiv/ws-13-14/seminarML/slides/folien13_Dang.pdf)
+- [참고링크](http://www.ke.tu-darmstadt.de/lehre/archiv/ws-13-14/seminarML/slides/folien13_Dang.pdf)
 
 ![image](https://user-images.githubusercontent.com/69780812/138295692-42d42e67-860f-4389-821a-02486226449e.png)
 
