@@ -173,4 +173,6 @@ linear 하여 non-linear한 성질을 갖는 feature를 추출하기에 어려�
 - Batch Normalized auxiliary classifer를 적용하면 성능이 더 좋아진다는 것을 확인할 수 있다.
 ---
 - 단순하게 Polling layer을 적용하는 것보다 Conv layer와 같이 나란히 적용하는 것이 효과적이라는 것을 파악했다.
-- 또한, conv kernel에 대한 인수분해 방식 적용과 앞 뒤 일부 구조, feature-map 개수 조정으로 성능
+- 또한, conv kernel에 대한 인수분해 방식 적용과 앞 뒤 일부 구조, feature-map 개수 조정으로 성능을 개선할 수 있다.
+
+
