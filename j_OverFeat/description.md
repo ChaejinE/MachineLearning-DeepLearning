@@ -75,3 +75,4 @@ ConvNet을 적용 하고 픽셀 간격으로 Sliding Window 하듯이 결과를 
 - crop과 dense evaluation을 상보적으로 섞어 사용하면 더 성능이 좋아진다.
 ---
 - 근본적으로는 deeper network 잇아의 성능을 얻은 것은 아니지만 ConvNet을 이용해서 localization/detection까지
+통합을 시도했다는 점에서 의미가 있고, SPPNet의 Spatial pyramid pooling과 맥이 닿아있다.
