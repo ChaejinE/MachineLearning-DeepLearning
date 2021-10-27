@@ -31,3 +31,8 @@
 ![image](https://user-images.githubusercontent.com/69780812/138882948-7bf0aa2f-8636-4c56-86ca-dd55fc23b464.png)
 
 - 이렇게 개발된 4개 1-D layer는 전체적으로 보면 1 RNN layer로 볼 수 있고 여러단으로 쌓게되면 여러단의 Conv+Pooling과 같은 효과를 얻을 수 있다.
+- 기존 CNN은 Pooling을 통해 영상의 크기를 줄여가면서 결과적으로 Spatial invariance를 얻는다.
+- RNN은 전체 이미지를 보기 때문에 Pooling이 필요없다.
+- CNN은 구조적 관점에서 병렬로 수행하기 좋다.
+- RNN은 동작이 순차적으로 이루어지므로 병렬 연산에 적합하지는 않다. 하지만, 파라미터 수가 적다.
+- RNN도 CNN의 대안이 될 수 있다는 것을 알 수 있는 Netework였다.
