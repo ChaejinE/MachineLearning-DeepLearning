@@ -40,6 +40,7 @@
   - 이를 잘 수행하기위해 Gradient Descent 방법을 도입한다.
 - 최적값을 찾아갈 때 흔히 쓰는 방법이다.
 - 어느 위치에서 편미분값이 음수가 되는 방향을 계속 선택하면 최적값에 도달할 수 있다.
+  - 이러한 기울기 값들은 해당 weight와 bias의 중요도라고 볼 수 있다.
 - 이렇게 KnownInput - KnownOutput을 통해 Weights, bias를 조금씩 바꿔과며 최적의 상태가 되도록 하는 것이 Supervised Learning 이다.
 # Backpropagation
 - Error의 역전파를 통해 최적의 학습 결과를 찾가는 것이 가능해졌다.
