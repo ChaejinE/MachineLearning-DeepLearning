@@ -74,6 +74,12 @@
 - Weights, bias를 편미분을 통해 아주 작게 변화시키면 출력쪽에서 생기는 변화 역시 매우 작은 변화가 생긴다.
   - 작은 변화에서의 관점으로 봤을 때 즉, **작은 구간만 봤을 때 [선형적 관계](https://ko.wikipedia.org/wiki/%EC%84%A0%ED%98%95%EC%84%B1)가 있다.**
 - Backpropagation은 출력부터 반대 방향으로 순차적으로 편미분을 수행해 가면서 W,b 를 갱신시켜 간다는 뜻에서 만들어 졌다.
+
+## Backpropagtion 수식 정리
+![image](https://user-images.githubusercontent.com/69780812/140255482-6106ccd4-6b4f-43f8-9e27-f3e2098828b0.png)
+
+![image](https://user-images.githubusercontent.com/69780812/140255592-3bc537b9-63a1-486d-b0fe-1a31353b1861.png)
+
 ---
 신경망이 충분히 학습을 못했을 때, Error가 크게 나타나는데, 이는 Data가 한쪽으로 치우치지 않고 Generalization(범용성)을 가져야 학습 결과가 좋다.
 ## Sigmoid의 좋은 성질과 Delta rule
