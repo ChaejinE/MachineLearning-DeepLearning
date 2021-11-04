@@ -119,7 +119,7 @@
 - **Stride는 입력 영상의 크기가 큰 경우, 연산량을 줄이기 위한 목적으로 입력단과 가까운 쪽에만 적용한다.**
 - Stride 1로하고, Pooling 적용하는 방식과 Stride를 크게하는 방식의 차이는 ?
   - Stride를 크게하는 것은 Convolution 연산 수행 후 값을 선택적으로 고르는 기회가 사라지게 된다.
-  - **그래서 통상적으로 봤ㅇ르 때, Stride 1, Pooling을 통해 적절한 Sub-sampling 과정을 거치는 것이 결과가 좋다.**
+  - **그래서 통상적으로 봤을 때, Stride 1, Pooling을 통해 적절한 Sub-sampling 과정을 거치는 것이 결과가 좋다.**
   - 하지만 큰 영상에 대해 CNN을 적용할 때 연산량을 줄이기 위해 입력 영상 처리 1단계에서 Stride 값을 사용하기도 한다.
 
 ## 4. Zero-Padding
